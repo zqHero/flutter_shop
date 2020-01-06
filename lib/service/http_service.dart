@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'dart:async';
 import 'dart:io';
 import '../config/index.dart';
+import '../config/http_conf.dart';
 
 Future request(url, {formData}) async {
   try {
@@ -10,9 +11,10 @@ Future request(url, {formData}) async {
     dio.options.contentType =
         ContentType.parse("application/x-www-form-urlencoded");
     if (formData == null) {
-      response = await dio.post(sevicePath[url]);
+      //TODO  暂时使用 GET请求:
+      response = await dio.post(servicePath[url]);
     } else {
-      response = await dio.post(sevicePath[url], data: formData);
+      response = await dio.post(servicePath[url], data: formData);
     }
     if (response.statusCode == 200) {
       return response;
