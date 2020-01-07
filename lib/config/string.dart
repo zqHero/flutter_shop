@@ -9,4 +9,6 @@ class KString {
 
   static const String loadReadyText = "上拉加载";
   static const String recommendText = "商品推荐";
+
+  static String hotHomeTitle ='火爆专区' ;
 }

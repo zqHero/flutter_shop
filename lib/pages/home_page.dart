@@ -20,9 +20,17 @@ class HomePage extends StatefulWidget {
 //AutomaticKeepAlive  继承自该类  使得   当前页  在tab切换时   不刷新界面
 class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true; //保持激活   防止刷新处理  保持当前状态
+
+  //火爆专区分页
+  int page = 1;
+  List<Map> hotGoodsList = []; //火爆专区数据
+
   //diff 算法   保证key唯一
   GlobalKey<RefreshFooterState> _footerKey =
-      new GlobalKey<RefreshFooterState>();
+  new GlobalKey<RefreshFooterState>();
 
   @override
   void initState() {
@@ -47,12 +55,12 @@ class _HomePageState extends State<HomePage>
           if (snapshot.hasData) {
             var data = json.decode(snapshot.data.toString());
             List<Map> swiperDataList =
-                (data['data']['slides'] as List).cast(); //轮播图
+            (data['data']['slides'] as List).cast(); //轮播图
             List<Map> category = (data['data']['category'] as List).cast(); //分类
             List<Map> recommendList =
-                (data['data']['recommend'] as List).cast(); //商品推荐
+            (data['data']['recommend'] as List).cast(); //商品推荐
             List<Map> floor1 =
-                (data['data']['floor1'] as List).cast(); //底部商品  推荐
+            (data['data']['floor1'] as List).cast(); //底部商品  推荐
             Map fp1 = data['data']['floorPic']; //广告
 
             return EasyRefresh(
@@ -79,14 +87,16 @@ class _HomePageState extends State<HomePage>
                   RecommendUI(recommendList: recommendList),
                   //广告
                   FloorPic(floorPic: fp1),
-
+                  //广告下的几个商品
                   Floor(floor: floor1),
-                  //
+                  //火爆专区
+                  hotGoods()
                 ],
               ),
               loadMore: () async {
                 //异步
                 print('加载更多.....');
+                getHotGoodsData();
               },
             );
           } else {
@@ -97,9 +107,101 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true; //保持激活   防止刷新处理  保持当前状态
+  void getHotGoodsData() {
+    //获取火爆专区数据
+    var formPage = {'page': page}; //页数
+    request('getHotGoods', formData: formPage).then((value) {
+      var data = json.decode(value.toString());
+      List<Map> newGoodsList = (data['data'] as List).cast();
+      //设置  火爆专区  数据列表
+      setState(() {
+        hotGoodsList.addAll(newGoodsList);
+        page++;
+      });
+    });
+  }
+
+  Widget hotGoods() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          hotTitle(),
+          _wrapList(),
+        ],
+      ),
+    );
+  }
+
+  Widget hotTitle() {
+    return Container(
+      margin: EdgeInsets.only(top: 10),
+      padding: EdgeInsets.all(5),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            bottom: BorderSide(width: 0.5, color: KColor.defaultBorderColor),
+          )),
+      child: Text(
+        KString.hotHomeTitle,
+        style: TextStyle(
+          color: KColor.homeSubTitleTextColor,
+        ),
+      ),
+    );
+  }
+
+  //火爆专区  数据渲染
+  Widget _wrapList() {
+    if (hotGoodsList.length != 0) {
+      List<Widget> listWidget = hotGoodsList.map((value) {
+        return InkWell(
+          onTap: () {},
+          child: Container(
+            width: ScreenUtil().setWidth(372),
+            color: Colors.white,
+            padding: EdgeInsets.all(5.0),
+            margin: EdgeInsets.only(bottom: 3.0),
+            child: Column(
+              children: <Widget>[
+                Image.network(
+                  value['image'],
+                  width: ScreenUtil().setWidth(375),
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+                Text(
+                  value['name'],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: ScreenUtil().setSp(26)),
+                ),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '￥${value['prientPrice']}',
+                      style: TextStyle(color: KColor.presentPriceTextColor),
+                    ),
+                    Text(
+                      '￥${value['oriPrice']}',
+                      style: TextStyle(color: KColor.oriPriceTextColor),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      }).toList();
+
+      return Wrap(
+        spacing: 2,
+        children: listWidget,
+      );
+    } else {
+      return Text('');
+    }
+  }
 }
 
 //商品推荐    底部分类
@@ -114,7 +216,9 @@ class Floor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = ScreenUtil.getInstance().width;
+    double width = ScreenUtil
+        .getInstance()
+        .width;
     return Container(
       child: Row(
         children: <Widget>[
@@ -124,7 +228,7 @@ class Floor extends StatelessWidget {
               children: <Widget>[
                 //左上角大图
                 Container(
-                  padding: EdgeInsets.only(top: 4,left: 4,right: 1),
+                  padding: EdgeInsets.only(top: 4, left: 4, right: 1),
                   height: ScreenUtil().setHeight(333),
                   child: InkWell(
                     child: Image.network(
@@ -145,9 +249,9 @@ class Floor extends StatelessWidget {
               children: <Widget>[
                 //右上图
                 Container(
-                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  padding: EdgeInsets.only(top: 4, left: 1, right: 4),
                   height: ScreenUtil().setHeight(111),
-                  width: width/2,
+                  width: width / 2,
                   child: InkWell(
                     child: Image.network(
                       floor[1]['image'],
@@ -160,9 +264,9 @@ class Floor extends StatelessWidget {
                 ),
                 //右中图
                 Container(
-                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  padding: EdgeInsets.only(top: 4, left: 1, right: 4),
                   height: ScreenUtil().setHeight(111),
-                  width: width/2,
+                  width: width / 2,
                   child: InkWell(
                     child: Image.network(
                       floor[1]['image'],
@@ -175,9 +279,9 @@ class Floor extends StatelessWidget {
                 ),
                 //右下图
                 Container(
-                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  padding: EdgeInsets.only(top: 4, left: 1, right: 4),
                   height: ScreenUtil().setHeight(111),
-                  width: width/2,
+                  width: width / 2,
                   child: InkWell(
                     child: Image.network(
                       floor[4]['image'],

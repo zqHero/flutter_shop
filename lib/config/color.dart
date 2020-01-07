@@ -10,4 +10,5 @@ class KColor {
   static const Color homeSubTitleTextColor = Color.fromRGBO(132, 95, 63, 1.0);
 
   static const Color presentPriceTextColor = Color.fromRGBO(182, 9, 9, 1.0);
+  static const Color oriPriceTextColor = Colors.black26;
 }
