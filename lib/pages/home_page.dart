@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 
 import 'package:flutter_swiper/flutter_swiper.dart';
+import '../config/font.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -76,7 +77,11 @@ class _HomePageState extends State<HomePage>
                   TopNavigator(navigatorList: category),
                   //推荐
                   RecommendUI(recommendList: recommendList),
+                  //广告
+                  FloorPic(floorPic: fp1),
 
+                  Floor(floor: floor1),
+                  //
                 ],
               ),
               loadMore: () async {
@@ -95,6 +100,128 @@ class _HomePageState extends State<HomePage>
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true; //保持激活   防止刷新处理  保持当前状态
+}
+
+//商品推荐    底部分类
+class Floor extends StatelessWidget {
+  final List<Map> floor;
+
+  Floor({Key key, this.floor}) : super(key: key);
+
+  void jumpDetail(context, String goodId) {
+    //跳转到商品详情界面
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double width = ScreenUtil.getInstance().width;
+    return Container(
+      child: Row(
+        children: <Widget>[
+          //左侧商品
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                //左上角大图
+                Container(
+                  padding: EdgeInsets.only(top: 4,left: 4,right: 1),
+                  height: ScreenUtil().setHeight(333),
+                  child: InkWell(
+                    child: Image.network(
+                      floor[0]['image'],
+                      fit: BoxFit.cover,
+                    ),
+                    onTap: () {
+                      jumpDetail(context, floor[0]['goodsId']);
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+//            右侧商品
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                //右上图
+                Container(
+                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  height: ScreenUtil().setHeight(111),
+                  width: width/2,
+                  child: InkWell(
+                    child: Image.network(
+                      floor[1]['image'],
+                      fit: BoxFit.fill,
+                    ),
+                    onTap: () {
+                      jumpDetail(context, floor[1]['goodsId']);
+                    },
+                  ),
+                ),
+                //右中图
+                Container(
+                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  height: ScreenUtil().setHeight(111),
+                  width: width/2,
+                  child: InkWell(
+                    child: Image.network(
+                      floor[1]['image'],
+                      fit: BoxFit.cover,
+                    ),
+                    onTap: () {
+                      jumpDetail(context, floor[1]['goodsId']);
+                    },
+                  ),
+                ),
+                //右下图
+                Container(
+                  padding: EdgeInsets.only(top: 4,left: 1,right: 4),
+                  height: ScreenUtil().setHeight(111),
+                  width: width/2,
+                  child: InkWell(
+                    child: Image.network(
+                      floor[4]['image'],
+                      fit: BoxFit.cover,
+                    ),
+                    onTap: () {
+                      jumpDetail(context, floor[4]['goodsId']);
+                    },
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+      ),
+    );
+  }
+}
+
+//商品推荐 下面   广告
+class FloorPic extends StatelessWidget {
+  final Map floorPic;
+
+  FloorPic({Key key, this.floorPic}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 5.0),
+      child: Container(
+        height: ScreenUtil().setHeight(250),
+        margin: EdgeInsets.only(top: 5.0),
+        child: InkWell(
+          child: Image.network(
+            floorPic['PICTURE_ADDRESS'],
+            fit: BoxFit.fitWidth,
+          ),
+          onTap: () {},
+        ),
+      ),
+    );
+  }
 }
 
 //商品推荐
@@ -137,13 +264,41 @@ class RecommendUI extends StatelessWidget {
   //商品 推荐列表
   Widget _recommendList(BuildContext context) {
     return Container(
-      height: ScreenUtil().setHeight(350),
+      height: ScreenUtil().setHeight(280),
       child: ListView.builder(
           itemCount: recommendList.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
-            return Text("=${index}");
+            return _item(index, context);
           }),
+    );
+  }
+
+  Widget _item(index, context) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        width: ScreenUtil().setWidth(280),
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              left: BorderSide(width: 0.5, color: KColor.defaultBorderColor),
+            )),
+        child: Column(children: <Widget>[
+          //防止溢出
+          Expanded(
+            child: Image.network(
+              recommendList[index]['image'],
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+          Text('￥${recommendList[index]['presentPrice']}',
+              style: TextStyle(color: KColor.presentPriceTextColor)),
+          Text('￥${recommendList[index]['oriPrice']}',
+              style: KFont.priPriceStyle)
+        ]),
+      ),
     );
   }
 }

@@ -1,5 +1,5 @@
-//const base_url = "http://10.20.20.32:3000/";
-const base_url = "http://192.168.137.1:3000/";
+const base_url = "http://10.20.20.97:3000/";
+//const base_url = "http://192.168.137.1:3000/";
 
 const servicePath = {
   "homePageContent": base_url + 'getHomePageContent', //首页数据接口地址
