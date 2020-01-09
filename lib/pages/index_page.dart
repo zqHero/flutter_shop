@@ -32,13 +32,6 @@ class IndexPage extends StatelessWidget {
     )
   ];
 
-  final List<Widget> tabBodies = [
-    HomePage(),
-    CategoryPage(),
-    CartPage(),
-    MemberPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
@@ -60,7 +53,12 @@ class IndexPage extends StatelessWidget {
           ),
           body: IndexedStack(
             index: currentIndex,
-            children: tabBodies,
+            children: <Widget>[
+              HomePage(),
+              CategoryPage(),
+              CartPage(),
+              MemberPage(),
+            ],
           ),
         );
       },

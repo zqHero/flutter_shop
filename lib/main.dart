@@ -4,8 +4,6 @@ import 'package:provide/provide.dart';
 
 import './config/index.dart';
 import 'provide/current_index_provide.dart';
-import 'package:provide/provide.dart';
-
 import './pages/index_page.dart';
 
 void main() {
